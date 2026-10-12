@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audio Maker</title>
+<style>
+:root {
+  --bg: #f6f4ef; --panel: #ffffff; --ink: #1d1b18; --muted: #77716a; --line: #e4dfd6;
+  --accent: #d2551f; --accent-ink: #fff; --soft: #f1ece4; --ok: #3b8a4f; --err: #b3261e;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #151413; --panel: #1f1d1b; --ink: #f0ece6; --muted: #9b948b; --line: #2f2c29;
+          --accent: #f07a3e; --accent-ink: #1a0d05; --soft: #292623; --ok: #6cc282; --err: #f2867e; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; }
+button, select, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+.app { display: grid; grid-template-columns: 360px 1fr; height: 100vh; padding-bottom: 92px; }
+aside { border-right: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
+header { padding: 20px 20px 12px; display: flex; align-items: center; justify-content: space-between; }
+h1 { font-size: 20px; margin: 0; letter-spacing: -0.01em; }
+.btn { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 7px 12px; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+.btn:disabled { opacity: .5; cursor: default; }
+a.btn { color: var(--ink); text-decoration: none; display: inline-block; }
+.search { margin: 0 20px 10px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+.list { overflow-y: auto; flex: 1; padding: 0 10px 20px; }
+.row { display: block; width: 100%; text-align: left; background: none; border: 0; border-radius: 10px; padding: 10px 12px; margin-bottom: 2px; }
+.row:hover { background: var(--soft); }
+.row.active { background: var(--panel); box-shadow: 0 0 0 1px var(--line); }
+.row .t { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row .m { color: var(--muted); font-size: 13px; display: flex; gap: 8px; align-items: center; }
+.bar { height: 3px; background: var(--line); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--accent); }
+.empty { color: var(--muted); padding: 20px; text-align: center; }
+main { overflow-y: auto; min-height: 0; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 28px 32px 40px; }
+.drop { border: 2px dashed var(--line); border-radius: 14px; padding: 36px 20px; text-align: center; background: var(--panel); transition: .15s; }
+.drop.over { border-color: var(--accent); background: var(--soft); }
+.drop strong { display: block; font-size: 17px; margin-bottom: 4px; }
+.drop .muted { color: var(--muted); font-size: 13px; }
+textarea { width: 100%; min-height: 120px; border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--panel); resize: vertical; }
+.field { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.field select, .field input[type=text] { padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--ink); min-width: 0; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 16px 0; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+.seg button { border: 0; background: var(--panel); padding: 7px 14px; }
+.seg button.on { background: var(--ink); color: var(--bg); }
+.or { text-align: center; color: var(--muted); margin: 14px 0; font-size: 13px; }
+.note { font-size: 13px; color: var(--muted); }
+.err { color: var(--err); font-size: 14px; margin-top: 8px; }
+.detail h2 { font-size: 26px; margin: 0 0 4px; letter-spacing: -0.01em; }
+.detail .meta { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.text { white-space: pre-wrap; font: 17px/1.7 "New York", "Iowan Old Style", Georgia, serif; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 24px 28px; }
+.status { padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 20px; }
+.status.error { border-color: var(--err); color: var(--err); white-space: pre-wrap; }
+details { margin: 0 0 20px; }
+summary { cursor: pointer; color: var(--muted); font-size: 14px; }
+.player { position: fixed; left: 0; right: 0; bottom: 0; height: 92px; background: var(--panel); border-top: 1px solid var(--line); display: grid; grid-template-columns: 280px 1fr 200px; align-items: center; gap: 20px; padding: 0 24px; }
+.player .now { overflow: hidden; }
+.player .now .t { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.player .now .m { color: var(--muted); font-size: 13px; }
+.controls { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+.ctl { display: flex; gap: 14px; align-items: center; }
+.ctl button { border: 0; background: none; padding: 4px 6px; border-radius: 6px; font-size: 13px; color: var(--muted); }
+.ctl button:hover { color: var(--ink); }
+.ctl .play { width: 40px; height: 40px; border-radius: 50%; background: var(--ink); color: var(--bg); font-size: 16px; display: grid; place-items: center; }
+.ctl .play:hover { color: var(--bg); }
+.scrub { display: flex; gap: 10px; align-items: center; width: 100%; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.scrub input { flex: 1; accent-color: var(--accent); }
+.speed { justify-self: end; display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); }
+.speed select { padding: 5px 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--panel); }
+@media (max-width: 820px) {
+  .app { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: auto; min-height: 100vh; padding-bottom: 150px; }
+  aside { border-right: 0; border-bottom: 1px solid var(--line); max-height: 40vh; }
+  .wrap { padding: 20px 16px 40px; }
+  .player { height: auto; grid-template-columns: 1fr; gap: 6px; padding: 10px 16px; }
+  .speed { justify-self: center; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <header>
+      <h1>Audio Maker</h1>
+      <button class="btn primary" id="newBtn">+ New</button>
+    </header>
+    <input class="search" id="search" placeholder="Search library">
+    <div class="list" id="list"></div>
+  </aside>
+  <main><div class="wrap" id="view"></div></main>
+</div>
+
+<div class="player" id="player">
+  <div class="now"><div class="t" id="pTitle">Nothing playing</div><div class="m" id="pMeta">Pick something from your library</div></div>
+  <div class="controls">
+    <div class="ctl">
+      <button id="back" title="Back 15s">−15s</button>
+      <button class="play" id="play" title="Play/Pause (space)">▶</button>
+      <button id="fwd" title="Forward 30s">+30s</button>
+    </div>
+    <div class="scrub"><span id="cur">0:00</span><input type="range" id="seek" min="0" max="1000" value="0"><span id="dur">0:00</span></div>
+  </div>
+  <div class="speed">Speed
+    <select id="rate">
+      <option>0.8</option><option selected>1</option><option>1.1</option><option>1.25</option>
+      <option>1.5</option><option>1.75</option><option>2</option><option>2.5</option>
+    </select>
+  </div>
+</div>
+<audio id="audio" preload="metadata"></audio>
+
+<script>
+const $ = s => document.querySelector(s);
+const api = async (url, opts = {}) => {
+  const r = await fetch(url, opts);
+  if (!r.ok) { let m = r.statusText; try { m = (await r.json()).detail || m } catch {} throw new Error(m); }
+  return r.json();
+};
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = s => { s = Math.max(0, Math.floor(s || 0)); const h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = String(s%60).padStart(2,"0"); return h ? `${h}:${String(m).padStart(2,"0")}:${x}` : `${m}:${x}`; };
+const store = { get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d } catch { return d } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)) } catch {} } };
+
+let items = [], voices = null, selected = null, playing = null;
+const audio = $("#audio");
+
+// ---------- library list ----------
+async function refresh() {
+  items = await api("/api/items");
+  renderList();
+  if (selected && selected !== "new") {
+    const it = items.find(i => i.id === selected);
+    if (!it) { selected = "new"; renderView(); }
+    else if (it.status !== lastStatus[it.id] || it.status === "working" || it.status === "queued") renderDetailStatus(it);
+  }
+  const busy = items.some(i => i.status === "working" || i.status === "queued");
+  // Only poll while audio is being made and the tab is visible; otherwise the page sits idle.
+  clearTimeout(refresh.t); if (busy && !document.hidden) refresh.t = setTimeout(refresh, 2000);
+}
+const lastStatus = {};
+
+function renderList() {
+  const q = $("#search").value.toLowerCase();
+  const shown = items.filter(i => !q || i.title.toLowerCase().includes(q) || (i.source_name||"").toLowerCase().includes(q));
+  if (!items.length) { $("#list").innerHTML = `<div class="empty">Your library is empty.<br>Drop a PDF on the right to start.</div>`; return; }
+  $("#list").innerHTML = shown.map(i => {
+    let meta, pct;
+    if (i.status === "done") {
+      pct = i.duration ? Math.min(100, i.position / i.duration * 100) : 0;
+      meta = i.finished ? "✓ Finished" : i.position > 5 ? `${fmt(i.duration - i.position)} left` : fmt(i.duration);
+    } else if (i.status === "error") { meta = "⚠ Failed"; pct = 0; }
+    else { meta = i.status === "queued" ? "Waiting…" : `Making audio · ${Math.round(i.progress*100)}%`; pct = i.progress*100; }
+    return `<button class="row ${i.id === selected ? "active" : ""}" data-id="${i.id}">
+      <div class="t">${esc(i.title)}</div>
+      <div class="m"><span>${meta}</span><span>·</span><span>${i.engine === "apple" ? esc(i.voice) : "Chatterbox"}</span></div>
+      ${pct > 0 && !i.finished ? `<div class="bar"><i style="width:${pct}%"></i></div>` : ""}
+    </button>`;
+  }).join("") || `<div class="empty">No matches</div>`;
+}
+$("#list").addEventListener("click", e => { const r = e.target.closest(".row"); if (r) select(r.dataset.id); });
+$("#search").addEventListener("input", renderList);
+$("#newBtn").addEventListener("click", () => select("new"));
+
+function select(id) { selected = id; renderList(); renderView(); }
+
+// ---------- voice settings (shared by new + regenerate) ----------
+async function loadVoices() { if (!voices) voices = await api("/api/voices"); return voices; }
+
+function voiceForm(prefix) {
+  const s = store.get("voiceSettings", {});
+  const engine = s.engine || "apple";
+  const apple = voices.apple.map(v => `<option value="${esc(v.id)}" ${v.id === (s.voice || voices.default_apple) ? "selected" : ""}>${esc(v.name)} — ${v.lang}</option>`).join("");
+  const clips = [`<option value="">Built-in voice</option>`, ...voices.chatterbox_clips.map(c => `<option ${c === s.voice_clip ? "selected" : ""}>${esc(c)}</option>`)].join("");
+  return `
+  <div class="seg" id="${prefix}engine">
+    <button type="button" data-e="apple" class="${engine === "apple" ? "on" : ""}">Apple voices</button>
+    <button type="button" data-e="chatterbox" class="${engine === "chatterbox" ? "on" : ""}">Chatterbox (AI)</button>
+  </div>
+  <div class="grid" id="${prefix}apple" ${engine !== "apple" ? "hidden" : ""}>
+    <label class="field">Voice<select id="${prefix}voice">${apple}</select></label>
+    <label class="field">Reading speed (words/min)<select id="${prefix}wpm">
+      ${[[0,"Normal"],[150,"150 — slow"],[200,"200"],[230,"230"],[260,"260 — fast"],[300,"300"]].map(([v,l]) => `<option value="${v}" ${v == (s.rate||0) ? "selected":""}>${l}</option>`).join("")}
+    </select></label>
+    <div class="field">&nbsp;<button type="button" class="btn" id="${prefix}preview">▶ Preview voice</button></div>
+  </div>
+  <div id="${prefix}cb" ${engine !== "chatterbox" ? "hidden" : ""}>
+    <div class="grid">
+      <label class="field">Voice<select id="${prefix}clip">${clips}</select></label>
+      <label class="field">Expressiveness <input type="range" id="${prefix}exag" min="0.25" max="1.5" step="0.05" value="${s.exaggeration ?? 0.5}"></label>
+      <div class="field">Clone a voice (10–20s clip)<button type="button" class="btn" id="${prefix}upclip">Upload clip…</button></div>
+    </div>
+    <p class="note">Chatterbox runs a neural voice model on your Mac. It sounds more natural but is much slower than Apple voices, and the first run downloads a few GB.</p>
+  </div>`;
+}
+
+function wireVoiceForm(prefix) {
+  let engine = store.get("voiceSettings", {}).engine || "apple";
+  $(`#${prefix}engine`).addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    engine = b.dataset.e;
+    $(`#${prefix}engine`).querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+    $(`#${prefix}apple`).hidden = engine !== "apple"; $(`#${prefix}cb`).hidden = engine !== "chatterbox";
+  });
+  $(`#${prefix}preview`).addEventListener("click", () => {
+    const p = new Audio(`/api/preview?voice=${encodeURIComponent($(`#${prefix}voice`).value)}&rate=${$(`#${prefix}wpm`).value}&t=${Date.now()}`);
+    audio.pause(); p.play();
+  });
+  $(`#${prefix}upclip`).addEventListener("click", () => {
+    const inp = Object.assign(document.createElement("input"), { type: "file", accept: "audio/*" });
+    inp.onchange = async () => {
+      const fd = new FormData(); fd.append("file", inp.files[0]);
+      try {
+        const { name } = await api("/api/voice-clips", { method: "POST", body: fd });
+        voices = null; await loadVoices();
+        const sel = $(`#${prefix}clip`); sel.add(new Option(name, name, true, true));
+      } catch (e) { alert(e.message); }
+    };
+    inp.click();
+  });
+  return () => {
+    const s = { engine, voice: $(`#${prefix}voice`).value, rate: +$(`#${prefix}wpm`).value,
+                voice_clip: $(`#${prefix}clip`).value, exaggeration: +$(`#${prefix}exag`).value, cfg_weight: 0.5 };
+    store.set("voiceSettings", s);
+    return s;
+  };
+}
+
+// ---------- views ----------
+async function renderView() {
+  if (!selected || selected === "new") return renderNew();
+  const it = await api(`/api/items/${selected}`);
+  lastStatus[it.id] = it.status;
+  $("#view").innerHTML = `<div class="detail">
+    <h2>${esc(it.title)}</h2>
+    <div class="meta">${it.source_name ? esc(it.source_name) + " · " : ""}${it.chars.toLocaleString()} characters · ${it.engine === "apple" ? esc(it.voice) : "Chatterbox · " + esc(it.voice)} · added ${new Date(it.created*1000).toLocaleDateString()}</div>
+    <div id="dstatus"></div>
+    <div class="actions">
+      <button class="btn primary" id="dplay" ${it.status !== "done" ? "disabled" : ""}>${playing === it.id && !audio.paused ? "❚❚ Pause" : it.position > 5 && !it.finished ? `▶ Resume at ${fmt(it.position)}` : "▶ Play"}</button>
+      <a class="btn" id="ddl" href="/api/items/${it.id}/audio?download=1" ${it.status !== "done" ? "hidden" : ""} style="text-decoration:none">Download .m4a</a>
+      <button class="btn" id="dfin">${it.finished ? "Mark unfinished" : "Mark finished"}</button>
+      <button class="btn" id="dren">Rename</button>
+      <button class="btn" id="ddel">Delete</button>
+    </div>
+    <details id="regen"><summary>Re-make audio with a different voice</summary><div style="margin-top:12px"></div></details>
+    <div class="text">${esc(it.text)}</div>
+  </div>`;
+  renderDetailStatus(it);
+  $("#dplay").onclick = () => playing === it.id ? toggle() : play(it.id);
+  $("#dfin").onclick = async () => { await api(`/api/items/${it.id}`, { method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ finished: !it.finished }) }); await refresh(); renderView(); };
+  $("#dren").onclick = async () => { const t = prompt("New title", it.title); if (t) { await api(`/api/items/${it.id}`, { method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ title: t }) }); await refresh(); renderView(); } };
+  $("#ddel").onclick = async () => { if (!confirm(`Delete “${it.title}” and its audio?`)) return; if (playing === it.id) stop(); await api(`/api/items/${it.id}`, { method: "DELETE" }); selected = "new"; await refresh(); renderView(); };
+  await loadVoices();
+  $("#regen").querySelector("div").innerHTML = voiceForm("r_") + `<button class="btn primary" id="rgo">Re-make audio</button>`;
+  const read = wireVoiceForm("r_");
+  $("#rgo").onclick = async () => {
+    if (playing === it.id) stop();
+    await api(`/api/items/${it.id}/regenerate`, { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(read()) });
+    await refresh(); renderView();
+  };
+}
+
+function renderDetailStatus(it) {
+  const el = $("#dstatus"); if (!el) return;
+  const was = lastStatus[it.id]; lastStatus[it.id] = it.status;
+  if (was && was !== "done" && it.status === "done") return renderView();
+  if (it.status === "done") { el.innerHTML = ""; return; }
+  if (it.status === "error") { el.innerHTML = `<div class="status error">Audio generation failed:\n${esc(it.message)}</div>`; return; }
+  el.innerHTML = `<div class="status"><div>${it.status === "queued" ? "Waiting in line…" : esc(it.message || "Working…")}</div>
+    <div class="bar"><i style="width:${Math.round(it.progress*100)}%"></i></div></div>`;
+}
+
+async function renderNew() {
+  $("#view").innerHTML = `
+    <div class="drop" id="drop">
+      <strong>Drop a document here</strong>
+      <div class="muted">PDF, EPUB, Word, text, Markdown, HTML or RTF</div>
+      <div style="margin-top:14px"><button class="btn" id="pick">Choose file…</button></div>
+      <div id="picked" class="note" style="margin-top:10px"></div>
+    </div>
+    <div class="or">or paste text</div>
+    <textarea id="paste" placeholder="Paste an article, notes, anything…"></textarea>
+    <div class="grid"><label class="field">Title (optional)<input type="text" id="title" placeholder="Uses the file name if blank"></label></div>
+    <div id="vf">Loading voices…</div>
+    <div style="margin-top:18px"><button class="btn primary" id="go">Make audio</button></div>
+    <div class="err" id="err"></div>`;
+  let file = null;
+  const setFile = f => { file = f; $("#picked").textContent = f ? `Selected: ${f.name}` : ""; };
+  const drop = $("#drop");
+  ["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+  ["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+  drop.addEventListener("drop", e => setFile(e.dataTransfer.files[0]));
+  if (pendingFile) { setFile(pendingFile); pendingFile = null; }
+  $("#pick").onclick = () => { const inp = Object.assign(document.createElement("input"), { type: "file", accept: ".pdf,.epub,.docx,.txt,.md,.markdown,.html,.htm,.rtf" }); inp.onchange = () => setFile(inp.files[0]); inp.click(); };
+  await loadVoices();
+  $("#vf").innerHTML = voiceForm("n_");
+  const read = wireVoiceForm("n_");
+  $("#go").onclick = async () => {
+    $("#err").textContent = "";
+    const s = read(), fd = new FormData();
+    if (file) fd.append("file", file); else fd.append("text", $("#paste").value);
+    fd.append("title", $("#title").value);
+    for (const k of ["engine", "voice", "rate", "voice_clip", "exaggeration", "cfg_weight"]) fd.append(k, s[k]);
+    $("#go").disabled = true; $("#go").textContent = "Reading document…";
+    try { const it = await api("/api/items", { method: "POST", body: fd }); await refresh(); select(it.id); }
+    catch (e) { $("#err").textContent = e.message; $("#go").disabled = false; $("#go").textContent = "Make audio"; }
+  };
+}
+// Dropping a file anywhere on the page goes to the new-item form.
+document.addEventListener("dragover", e => e.preventDefault());
+let pendingFile = null;
+document.addEventListener("drop", e => { if (!e.target.closest("#drop")) { e.preventDefault(); if (e.dataTransfer.files[0]) { pendingFile = e.dataTransfer.files[0]; select("new"); } } });
+
+// ---------- player ----------
+function play(id) {
+  const it = items.find(i => i.id === id); if (!it || it.status !== "done") return;
+  if (playing !== id) {
+    savePos();
+    playing = id;
+    audio.src = `/api/items/${id}/audio`;
+    audio.playbackRate = +$("#rate").value;
+    audio.addEventListener("loadedmetadata", () => { if (it.position > 5 && !it.finished && it.position < audio.duration - 3) audio.currentTime = it.position; }, { once: true });
+    $("#pTitle").textContent = it.title;
+    $("#pMeta").textContent = it.engine === "apple" ? it.voice : "Chatterbox";
+    if ("mediaSession" in navigator) navigator.mediaSession.metadata = new MediaMetadata({ title: it.title, artist: "Audio Maker" });
+  }
+  audio.play();
+}
+function toggle() { if (!playing) { const it = items.find(i => i.id === selected); if (it) play(it.id); return; } audio.paused ? audio.play() : audio.pause(); }
+function stop() { savePos(); audio.pause(); audio.removeAttribute("src"); audio.load(); playing = null; $("#pTitle").textContent = "Nothing playing"; $("#pMeta").textContent = ""; syncUI(); }
+function syncUI() {
+  $("#play").textContent = audio.paused ? "▶" : "❚❚";
+  const b = $("#dplay"); if (b && selected === playing) b.textContent = audio.paused ? "▶ Resume" : "❚❚ Pause";
+}
+let lastSaved = 0;
+async function savePos(finished) {
+  if (!playing || !audio.duration) return;
+  const body = { position: audio.currentTime }; if (finished) { body.finished = true; body.position = 0; }
+  lastSaved = Date.now();
+  const it = items.find(i => i.id === playing); if (it) Object.assign(it, body);
+  try { await fetch(`/api/items/${playing}`, { method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body) }); } catch {}
+}
+audio.addEventListener("play", syncUI);
+audio.addEventListener("pause", () => { syncUI(); savePos(); renderList(); });
+audio.addEventListener("ended", () => { savePos(true); renderList(); });
+audio.addEventListener("timeupdate", () => {
+  $("#cur").textContent = fmt(audio.currentTime); $("#dur").textContent = fmt(audio.duration);
+  if (!seeking && audio.duration) $("#seek").value = audio.currentTime / audio.duration * 1000;
+  if (Date.now() - lastSaved > 5000) savePos();
+});
+let seeking = false;
+$("#seek").addEventListener("input", () => { seeking = true; $("#cur").textContent = fmt($("#seek").value / 1000 * audio.duration); });
+$("#seek").addEventListener("change", () => { if (audio.duration) audio.currentTime = $("#seek").value / 1000 * audio.duration; seeking = false; });
+$("#play").onclick = toggle;
+$("#back").onclick = () => audio.currentTime = Math.max(0, audio.currentTime - 15);
+$("#fwd").onclick = () => audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 30);
+$("#rate").value = store.get("rate", "1");
+$("#rate").onchange = () => { audio.playbackRate = +$("#rate").value; store.set("rate", $("#rate").value); };
+document.addEventListener("keydown", e => {
+  if (e.target.matches("input, textarea, select")) return;
+  if (e.code === "Space") { e.preventDefault(); toggle(); }
+  if (e.code === "ArrowLeft") $("#back").click();
+  if (e.code === "ArrowRight") $("#fwd").click();
+});
+if ("mediaSession" in navigator) {
+  navigator.mediaSession.setActionHandler("seekbackward", () => $("#back").click());
+  navigator.mediaSession.setActionHandler("seekforward", () => $("#fwd").click());
+}
+window.addEventListener("beforeunload", () => savePos());
+document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
+
+refresh().then(() => select(items.length ? items[0].id : "new"));
+</script>
+</body>
+</html>
