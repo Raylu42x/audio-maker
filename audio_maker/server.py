@@ -1,5 +1,6 @@
 """Local web app: drop in a document, get an audiobook, keep a library."""
 
+import json
 import os
 import queue
 import re
@@ -49,14 +50,11 @@ def generate(item_id: str) -> None:
     def progress(frac: float, msg: str) -> None:
         library.update(item_id, progress=round(frac * 0.97, 4), message=msg)
 
-    opts = item["options"]
-    if item["engine"] == "chatterbox":
-        files = tts.synth_chatterbox(text, opts, work, progress)
-    else:
-        files = tts.synth_apple(text, item["voice"], opts.get("rate"), work, progress)
+    files, sync = tts.synthesize(text, item["engine"], item["voice"], item["options"], work, progress)
 
     library.update(item_id, message="Stitching audio together")
     duration = tts.combine(files, d / "audio.m4a")
+    (d / "sync.json").write_text(json.dumps(sync))
     shutil.rmtree(work, ignore_errors=True)
     library.update(item_id, status="done", progress=1, message=None, duration=duration)
 
@@ -82,7 +80,11 @@ def items() -> list[dict]:
 @app.get("/api/items/{item_id}")
 def item(item_id: str) -> dict:
     it = library.get(item_id) or _404()
-    it["text"] = (library.item_dir(item_id) / "text.txt").read_text()
+    d = library.item_dir(item_id)
+    it["text"] = (d / "text.txt").read_text()
+    sync = d / "sync.json"
+    it["sentences"] = json.loads(sync.read_text())["sentences"] if sync.exists() else None
+    it["bookmarks"] = library.bookmarks(item_id)
     return it
 
 
@@ -178,6 +180,7 @@ def regenerate(item_id: str, body: Regen) -> dict:
     d = library.item_dir(item_id)
     shutil.rmtree(d / "parts", ignore_errors=True)
     (d / "audio.m4a").unlink(missing_ok=True)
+    (d / "sync.json").unlink(missing_ok=True)
     library.update(item_id, engine=body.engine, voice=voice, options=options, status="queued",
                    progress=0, message=None, duration=None, position=0, finished=False)
     jobs.put(item_id)
@@ -198,6 +201,47 @@ def audio(item_id: str, download: bool = False):
         _404()
     name = re.sub(r'[\\/:*?"<>|]', "", it["title"])[:120] + ".m4a"
     return FileResponse(f, media_type="audio/mp4", filename=name if download else None)
+
+
+class NewBookmark(BaseModel):
+    position: float
+    note: str = ""
+
+
+class BookmarkPatch(BaseModel):
+    note: str
+
+
+@app.get("/api/bookmarks")
+def all_bookmarks() -> list[dict]:
+    return library.bookmarks()
+
+
+@app.post("/api/items/{item_id}/bookmarks")
+def add_bookmark(item_id: str, body: NewBookmark) -> dict:
+    library.get(item_id) or _404()
+    return library.add_bookmark(item_id, body.position, body.note, _sentence_at(item_id, body.position))
+
+
+@app.patch("/api/bookmarks/{bm_id}")
+def edit_bookmark(bm_id: int, body: BookmarkPatch) -> dict:
+    return library.update_bookmark(bm_id, body.note) or _404()
+
+
+@app.delete("/api/bookmarks/{bm_id}")
+def remove_bookmark(bm_id: int) -> dict:
+    library.delete_bookmark(bm_id)
+    return {"ok": True}
+
+
+def _sentence_at(item_id: str, t: float) -> str:
+    """The sentence being read at time t, saved with a bookmark so the list shows context."""
+    sync = library.item_dir(item_id) / "sync.json"
+    if not sync.exists():
+        return ""
+    sents = json.loads(sync.read_text())["sentences"]
+    hit = next((s for s in sents if s.get("e", 0) > t), sents[-1] if sents else None)
+    return hit["t"] if hit else ""
 
 
 @app.get("/api/preview")

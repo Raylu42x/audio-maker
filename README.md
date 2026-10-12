@@ -16,6 +16,18 @@ Your browser opens at http://127.0.0.1:8765. Drop a file onto the page, pick a v
 
 Requirements: macOS, [uv](https://docs.astral.sh/uv/), and `ffmpeg` (`brew install ffmpeg`).
 
+## Follow along & bookmarks
+
+- While it plays, the sentence being read is highlighted and the text scrolls to keep it centered.
+  Scroll away yourself and auto-follow pauses; tap **Back to where it's reading** to resume.
+- Click any sentence to jump the audio there.
+- Press **B** (or 🔖 Bookmark) to bookmark the current spot. Each bookmark saves the sentence being
+  read and lets you type a note (saves as you type). Bookmarked sentences are underlined in the text.
+  The 🔖 button at the top of the sidebar lists bookmarks across your whole library.
+- Items made with an earlier version have no timing data — use "Re-make audio" to get follow-along.
+
+Keyboard: Space play/pause · ← back 15s · → forward 30s · B bookmark.
+
 ## Voices
 
 **Apple voices** (default) — the voices built into macOS, driven through the `say` command. Fast
@@ -45,9 +57,10 @@ If a Chatterbox job is interrupted, re-running picks up where it left off.
 Stored in `~/Music/Audio Maker/` (override with `AUDIO_MAKER_HOME`):
 
 ```
-library.db            SQLite: titles, voice, status, playback position
+library.db            SQLite: titles, voice, status, playback position, bookmarks + notes
 items/<id>/text.txt   extracted text
 items/<id>/audio.m4a  the audiobook (AAC, plays anywhere — drag into Apple Books/Music if you like)
+items/<id>/sync.json  every sentence with its start/end time, for follow-along
 voices/               reference clips for Chatterbox voice cloning
 ```
 
@@ -57,9 +70,13 @@ Other settings: `AUDIO_MAKER_PORT` (default 8765), `AUDIO_MAKER_NO_BROWSER=1`.
 
 - `audio_maker/extract.py` — text extraction per format. PDF lines are re-flowed into paragraphs
   (de-hyphenated, page numbers dropped). Scanned PDFs with no text layer aren't supported yet.
-- `audio_maker/tts.py` — splits text into sentence-aligned chunks (≈4000 chars for `say`, ≈280 for
-  Chatterbox, which degrades on long inputs), synthesizes each, then stitches them into one `.m4a`
-  with ffmpeg.
+- `audio_maker/tts.py` — splits text into sentences, groups them into chunks (≈1000 chars for `say`,
+  ≈280 for Chatterbox, which degrades on long inputs), synthesizes each chunk to WAV, then stitches
+  them into one `.m4a` with ffmpeg.
+- Follow-along timing: each chunk's exact duration is read from its WAV; sentences inside a chunk are
+  placed proportionally by an estimated speaking weight (letters + pauses for punctuation). Checked
+  against real pauses in the audio this lands within ~0.2s. Per-sentence `say` calls would be exact
+  but `say` costs ~0.7s startup per call, which would make long books much slower — hence 1000-char chunks.
 - `audio_maker/chatterbox_worker.py` — the Chatterbox process, launched with
   `uv run --python 3.11 --with chatterbox-tts` so torch stays out of the app's own environment.
 - `audio_maker/server.py` — FastAPI app + a single background worker thread that processes the queue.

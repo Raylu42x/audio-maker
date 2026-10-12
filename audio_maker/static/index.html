@@ -57,6 +57,22 @@ textarea { width: 100%; min-height: 120px; border: 1px solid var(--line); border
 .text { white-space: pre-wrap; font: 17px/1.7 "New York", "Iowan Old Style", Georgia, serif; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 24px 28px; }
 .status { padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 20px; }
 .status.error { border-color: var(--err); color: var(--err); white-space: pre-wrap; }
+.text p { margin: 0 0 1em; } .text p:last-child { margin: 0; }
+.s { border-radius: 4px; cursor: pointer; transition: background-color .25s; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.s:hover { background: var(--soft); }
+.s.now { background: color-mix(in srgb, var(--accent) 24%, transparent); }
+.s.bm { text-decoration: underline 2px color-mix(in srgb, var(--accent) 70%, transparent); text-underline-offset: 4px; }
+.follow { position: fixed; right: 28px; bottom: 112px; z-index: 5; box-shadow: 0 4px 16px rgba(0,0,0,.18); }
+.bms { margin: 0 0 20px; display: grid; gap: 8px; }
+.bms h3 { font-size: 14px; color: var(--muted); font-weight: 600; margin: 0 0 2px; }
+.bm-card { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 12px; align-items: start; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.bm-card .when { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--accent); background: none; border: 0; padding: 2px 0; }
+.bm-card .snip { color: var(--muted); font-size: 13px; font-style: italic; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.bm-card .src { font-size: 13px; font-weight: 600; background: none; border: 0; padding: 0; text-align: left; color: var(--ink); }
+.bm-card textarea { grid-column: 2 / 3; min-height: 0; height: auto; padding: 6px 8px; font-size: 14px; border-radius: 7px; resize: none; field-sizing: content; }
+.bm-card .x { background: none; border: 0; color: var(--muted); font-size: 18px; line-height: 1; padding: 2px 4px; }
+.bm-card .x:hover { color: var(--err); }
+.toast { position: fixed; left: 50%; bottom: 110px; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 8px; font-size: 14px; z-index: 10; }
 details { margin: 0 0 20px; }
 summary { cursor: pointer; color: var(--muted); font-size: 14px; }
 .player { position: fixed; left: 0; right: 0; bottom: 0; height: 92px; background: var(--panel); border-top: 1px solid var(--line); display: grid; grid-template-columns: 280px 1fr 200px; align-items: center; gap: 20px; padding: 0 24px; }
@@ -87,7 +103,7 @@ summary { cursor: pointer; color: var(--muted); font-size: 14px; }
   <aside>
     <header>
       <h1>Audio Maker</h1>
-      <button class="btn primary" id="newBtn">+ New</button>
+      <div style="display:flex;gap:8px"><button class="btn" id="bmBtn" title="All bookmarks">🔖</button><button class="btn primary" id="newBtn">+ New</button></div>
     </header>
     <input class="search" id="search" placeholder="Search library">
     <div class="list" id="list"></div>
@@ -102,6 +118,7 @@ summary { cursor: pointer; color: var(--muted); font-size: 14px; }
       <button id="back" title="Back 15s">−15s</button>
       <button class="play" id="play" title="Play/Pause (space)">▶</button>
       <button id="fwd" title="Forward 30s">+30s</button>
+      <button id="addBm" title="Bookmark this spot (B)">🔖 Bookmark</button>
     </div>
     <div class="scrub"><span id="cur">0:00</span><input type="range" id="seek" min="0" max="1000" value="0"><span id="dur">0:00</span></div>
   </div>
@@ -113,6 +130,7 @@ summary { cursor: pointer; color: var(--muted); font-size: 14px; }
   </div>
 </div>
 <audio id="audio" preload="metadata"></audio>
+<button class="btn primary follow" id="follow" hidden>↓ Back to where it's reading</button>
 
 <script>
 const $ = s => document.querySelector(s);
@@ -132,7 +150,7 @@ const audio = $("#audio");
 async function refresh() {
   items = await api("/api/items");
   renderList();
-  if (selected && selected !== "new") {
+  if (selected && selected !== "new" && selected !== "bookmarks") {
     const it = items.find(i => i.id === selected);
     if (!it) { selected = "new"; renderView(); }
     else if (it.status !== lastStatus[it.id] || it.status === "working" || it.status === "queued") renderDetailStatus(it);
@@ -156,7 +174,7 @@ function renderList() {
     else { meta = i.status === "queued" ? "Waiting…" : `Making audio · ${Math.round(i.progress*100)}%`; pct = i.progress*100; }
     return `<button class="row ${i.id === selected ? "active" : ""}" data-id="${i.id}">
       <div class="t">${esc(i.title)}</div>
-      <div class="m"><span>${meta}</span><span>·</span><span>${i.engine === "apple" ? esc(i.voice) : "Chatterbox"}</span></div>
+      <div class="m"><span>${meta}</span><span>·</span><span>${i.engine === "apple" ? esc(i.voice) : "Chatterbox"}</span>${i.bookmark_count ? `<span>· 🔖 ${i.bookmark_count}</span>` : ""}</div>
       ${pct > 0 && !i.finished ? `<div class="bar"><i style="width:${pct}%"></i></div>` : ""}
     </button>`;
   }).join("") || `<div class="empty">No matches</div>`;
@@ -164,6 +182,7 @@ function renderList() {
 $("#list").addEventListener("click", e => { const r = e.target.closest(".row"); if (r) select(r.dataset.id); });
 $("#search").addEventListener("input", renderList);
 $("#newBtn").addEventListener("click", () => select("new"));
+$("#bmBtn").addEventListener("click", () => select("bookmarks"));
 
 function select(id) { selected = id; renderList(); renderView(); }
 
@@ -231,8 +250,10 @@ function wireVoiceForm(prefix) {
 
 // ---------- views ----------
 async function renderView() {
-  if (!selected || selected === "new") return renderNew();
+  if (!selected || selected === "new") { current = null; return renderNew(); }
+  if (selected === "bookmarks") return renderAllBookmarks();
   const it = await api(`/api/items/${selected}`);
+  current = it; nowIdx = -1; follow = true; $("#follow").hidden = true;
   lastStatus[it.id] = it.status;
   $("#view").innerHTML = `<div class="detail">
     <h2>${esc(it.title)}</h2>
@@ -241,14 +262,20 @@ async function renderView() {
     <div class="actions">
       <button class="btn primary" id="dplay" ${it.status !== "done" ? "disabled" : ""}>${playing === it.id && !audio.paused ? "❚❚ Pause" : it.position > 5 && !it.finished ? `▶ Resume at ${fmt(it.position)}` : "▶ Play"}</button>
       <a class="btn" id="ddl" href="/api/items/${it.id}/audio?download=1" ${it.status !== "done" ? "hidden" : ""} style="text-decoration:none">Download .m4a</a>
+      <button class="btn" id="dbm" ${it.status !== "done" ? "disabled" : ""}>🔖 Bookmark</button>
       <button class="btn" id="dfin">${it.finished ? "Mark unfinished" : "Mark finished"}</button>
       <button class="btn" id="dren">Rename</button>
       <button class="btn" id="ddel">Delete</button>
     </div>
     <details id="regen"><summary>Re-make audio with a different voice</summary><div style="margin-top:12px"></div></details>
-    <div class="text">${esc(it.text)}</div>
+    <div class="bms" id="bms"></div>
+    ${it.status === "done" && !it.sentences ? `<p class="note">This was made before follow-along existed — re-make the audio to get highlighted, clickable text.</p>` : ""}
+    <div class="text" id="text">${renderText(it)}</div>
   </div>`;
   renderDetailStatus(it);
+  renderBookmarks();
+  $("#dbm").onclick = addBookmark;
+  if (playing === it.id) highlight(true);
   $("#dplay").onclick = () => playing === it.id ? toggle() : play(it.id);
   $("#dfin").onclick = async () => { await api(`/api/items/${it.id}`, { method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ finished: !it.finished }) }); await refresh(); renderView(); };
   $("#dren").onclick = async () => { const t = prompt("New title", it.title); if (t) { await api(`/api/items/${it.id}`, { method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ title: t }) }); await refresh(); renderView(); } };
@@ -262,6 +289,125 @@ async function renderView() {
     await refresh(); renderView();
   };
 }
+
+// ---------- follow-along text ----------
+let current = null, nowIdx = -1, follow = true, autoScrollUntil = 0;
+
+function renderText(it) {
+  if (!it.sentences) return esc(it.text);
+  let html = "", para = -1;
+  it.sentences.forEach((s, i) => {
+    if (s.p !== para) { html += (para === -1 ? "" : "</p>") + "<p>"; para = s.p; }
+    html += `<span class="s" data-i="${i}">${esc(s.t)}</span> `;
+  });
+  return html + "</p>";
+}
+
+function sentenceAt(t) {  // binary search for the sentence being read at time t
+  const ss = current.sentences; let lo = 0, hi = ss.length - 1;
+  while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (ss[mid].s <= t) lo = mid; else hi = mid - 1; }
+  return lo;
+}
+
+function highlight(force) {
+  if (!current?.sentences || playing !== current.id) return;
+  const i = sentenceAt(audio.currentTime);
+  if (i === nowIdx && !force) return;
+  document.querySelector(".s.now")?.classList.remove("now");
+  const el = document.querySelector(`.s[data-i="${i}"]`);
+  nowIdx = i;
+  if (!el) return;
+  el.classList.add("now");
+  if (follow) { autoScrollUntil = Date.now() + 700; el.scrollIntoView({ block: "center", behavior: "smooth" }); }
+}
+
+function markBookmarked() {
+  document.querySelectorAll(".s.bm").forEach(e => e.classList.remove("bm"));
+  if (!current?.sentences) return;
+  for (const b of current.bookmarks) document.querySelector(`.s[data-i="${sentenceAt(b.position)}"]`)?.classList.add("bm");
+}
+
+$("#view").addEventListener("click", e => {
+  const el = e.target.closest(".s"); if (!el || !current?.sentences || current.status !== "done") return;
+  if (window.getSelection().toString()) return;  // let people select text without jumping
+  const t = current.sentences[+el.dataset.i].s;
+  follow = true; $("#follow").hidden = true;
+  playing === current.id ? (audio.currentTime = t, audio.play()) : play(current.id, t);
+});
+// Manual scrolling pauses auto-follow until you tap "Back to where it's reading".
+const stopFollow = () => { if (Date.now() > autoScrollUntil && playing && playing === current?.id && current.sentences) { follow = false; $("#follow").hidden = false; } };
+document.querySelector("main").addEventListener("wheel", stopFollow, { passive: true });
+document.querySelector("main").addEventListener("touchmove", stopFollow, { passive: true });
+window.addEventListener("scroll", () => { if (window.innerWidth <= 820) stopFollow(); }, { passive: true });
+$("#follow").onclick = () => { follow = true; $("#follow").hidden = true; highlight(true); };
+
+// ---------- bookmarks ----------
+function toast(msg) {
+  const t = Object.assign(document.createElement("div"), { className: "toast", textContent: msg });
+  document.body.append(t); setTimeout(() => t.remove(), 1800);
+}
+
+async function addBookmark() {
+  let id, pos;
+  if (playing) { id = playing; pos = audio.currentTime; }
+  else if (current && current.status === "done") { id = current.id; pos = current.position; }
+  else return toast("Play something first");
+  const bm = await api(`/api/items/${id}/bookmarks`, { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ position: pos }) });
+  toast(`Bookmarked at ${fmt(pos)}`);
+  if (current?.id === id) { current.bookmarks = [...current.bookmarks, bm].sort((a, b) => a.position - b.position); renderBookmarks(bm.id); }
+  if (selected === "bookmarks") renderAllBookmarks();
+  refresh();
+}
+
+function bookmarkCard(b, showTitle) {
+  return `<div class="bm-card" data-bm="${b.id}">
+    <button class="when" data-jump="${b.item_id}" data-t="${b.position}" title="Jump here">${fmt(b.position)}</button>
+    <div>${showTitle ? `<button class="src" data-open="${b.item_id}">${esc(b.title)}</button>` : ""}<div class="snip">${esc(b.snippet || "")}</div></div>
+    <button class="x" data-del="${b.id}" title="Delete bookmark">×</button>
+    <textarea rows="1" data-note="${b.id}" placeholder="Add a note…">${esc(b.note)}</textarea>
+  </div>`;
+}
+
+function renderBookmarks(focusId) {
+  const el = $("#bms"); if (!el) return;
+  el.innerHTML = current.bookmarks.length ? `<h3>Bookmarks</h3>` + current.bookmarks.map(b => bookmarkCard(b)).join("") : "";
+  markBookmarked();
+  if (focusId) el.querySelector(`[data-note="${focusId}"]`)?.focus();
+}
+
+async function renderAllBookmarks() {
+  current = null;
+  const all = await api("/api/bookmarks");
+  $("#view").innerHTML = `<div class="detail"><h2>Bookmarks</h2><div class="meta">${all.length} across your library, newest first</div>
+    <div class="bms">${all.map(b => bookmarkCard(b, true)).join("") || `<div class="empty">No bookmarks yet. Press 🔖 (or B) while listening.</div>`}</div></div>`;
+}
+
+$("#view").addEventListener("click", async e => {
+  const j = e.target.closest("[data-jump]"), o = e.target.closest("[data-open]"), d = e.target.closest("[data-del]");
+  if (j) {
+    const id = j.dataset.jump, t = +j.dataset.t;
+    follow = true; $("#follow").hidden = true;
+    playing === id ? (audio.currentTime = t, audio.play()) : play(id, t);
+    if (selected !== id) select(id);
+  } else if (o) select(o.dataset.open);
+  else if (d) {
+    await api(`/api/bookmarks/${d.dataset.del}`, { method: "DELETE" });
+    if (current) { current.bookmarks = current.bookmarks.filter(b => b.id !== +d.dataset.del); renderBookmarks(); }
+    else renderAllBookmarks();
+    refresh();
+  }
+});
+// Notes save as you type (debounced) and when you leave the box.
+const noteTimers = {};
+const saveNote = async ta => {
+  clearTimeout(noteTimers[ta.dataset.note]);
+  await api(`/api/bookmarks/${ta.dataset.note}`, { method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ note: ta.value }) });
+  const b = current?.bookmarks.find(b => b.id === +ta.dataset.note); if (b) b.note = ta.value;
+};
+$("#view").addEventListener("input", e => { const ta = e.target.closest("[data-note]"); if (ta) { clearTimeout(noteTimers[ta.dataset.note]); noteTimers[ta.dataset.note] = setTimeout(() => saveNote(ta), 600); } });
+$("#view").addEventListener("focusout", e => { const ta = e.target.closest("[data-note]"); if (ta) saveNote(ta); });
+$("#view").addEventListener("keydown", e => { if (e.target.matches("[data-note]") && e.key === "Enter" && !e.shiftKey) { e.preventDefault(); e.target.blur(); } });
+$("#addBm").onclick = addBookmark;
 
 function renderDetailStatus(it) {
   const el = $("#dstatus"); if (!el) return;
@@ -315,14 +461,19 @@ let pendingFile = null;
 document.addEventListener("drop", e => { if (!e.target.closest("#drop")) { e.preventDefault(); if (e.dataTransfer.files[0]) { pendingFile = e.dataTransfer.files[0]; select("new"); } } });
 
 // ---------- player ----------
-function play(id) {
+function play(id, at) {
   const it = items.find(i => i.id === id); if (!it || it.status !== "done") return;
+  if (playing === id && at != null) audio.currentTime = at;
   if (playing !== id) {
     savePos();
     playing = id;
     audio.src = `/api/items/${id}/audio`;
     audio.playbackRate = +$("#rate").value;
-    audio.addEventListener("loadedmetadata", () => { if (it.position > 5 && !it.finished && it.position < audio.duration - 3) audio.currentTime = it.position; }, { once: true });
+    audio.addEventListener("loadedmetadata", () => {
+      if (at != null) audio.currentTime = at;
+      else if (it.position > 5 && !it.finished && it.position < audio.duration - 3) audio.currentTime = it.position;
+    }, { once: true });
+    nowIdx = -1;
     $("#pTitle").textContent = it.title;
     $("#pMeta").textContent = it.engine === "apple" ? it.voice : "Chatterbox";
     if ("mediaSession" in navigator) navigator.mediaSession.metadata = new MediaMetadata({ title: it.title, artist: "Audio Maker" });
@@ -350,7 +501,9 @@ audio.addEventListener("timeupdate", () => {
   $("#cur").textContent = fmt(audio.currentTime); $("#dur").textContent = fmt(audio.duration);
   if (!seeking && audio.duration) $("#seek").value = audio.currentTime / audio.duration * 1000;
   if (Date.now() - lastSaved > 5000) savePos();
+  highlight();
 });
+audio.addEventListener("seeked", () => highlight());
 let seeking = false;
 $("#seek").addEventListener("input", () => { seeking = true; $("#cur").textContent = fmt($("#seek").value / 1000 * audio.duration); });
 $("#seek").addEventListener("change", () => { if (audio.duration) audio.currentTime = $("#seek").value / 1000 * audio.duration; seeking = false; });
@@ -364,6 +517,7 @@ document.addEventListener("keydown", e => {
   if (e.code === "Space") { e.preventDefault(); toggle(); }
   if (e.code === "ArrowLeft") $("#back").click();
   if (e.code === "ArrowRight") $("#fwd").click();
+  if (e.code === "KeyB" && !e.metaKey && !e.ctrlKey) addBookmark();
 });
 if ("mediaSession" in navigator) {
   navigator.mediaSession.setActionHandler("seekbackward", () => $("#back").click());

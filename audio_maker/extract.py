@@ -129,34 +129,69 @@ def paragraphs(text: str) -> list[str]:
     return [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
 
 
-def chunk(text: str, max_chars: int) -> list[str]:
-    """Group text into chunks of whole sentences no longer than max_chars."""
-    sentences: list[str] = []
-    for para in paragraphs(text):
+def sentences(text: str) -> list[dict]:
+    """Split text into sentences, each tagged with its paragraph number: [{"t": str, "p": int}]."""
+    out = []
+    for p, para in enumerate(paragraphs(text)):
         para = " ".join(para.split())
-        for s in re.split(r"(?<=[.!?…])\s+", para):
-            while len(s) > max_chars:  # very long run-on: split on spaces
-                cut = s.rfind(" ", 0, max_chars)
-                cut = cut if cut > 0 else max_chars
-                sentences.append(s[:cut])
-                s = s[cut:].strip()
-            if s:
-                sentences.append(s)
-        sentences.append("")  # paragraph boundary marker
-    chunks: list[str] = []
-    cur = ""
-    for s in sentences:
-        if s == "":
-            if cur and len(cur) > max_chars * 0.6:
-                chunks.append(cur)
-                cur = ""
-            elif cur:
-                cur += "\n\n"
-            continue
-        if cur and len(cur) + len(s) + 1 > max_chars:
-            chunks.append(cur.strip())
-            cur = ""
-        cur = (cur + " " + s) if cur and not cur.endswith("\n") else cur + s
-    if cur.strip():
-        chunks.append(cur.strip())
-    return chunks
+        merged: list[str] = []
+        for s in re.split(r"(?<=[.!?\u2026])\s+(?=[\"'\u201c\u2018(\[]?[A-Z0-9])", para):
+            if merged and (ABBREV.search(merged[-1]) or len(merged[-1]) < 4):
+                merged[-1] += " " + s
+            elif s:
+                merged.append(s)
+        out += [{"t": s, "p": p} for s in merged]
+    return out
+
+
+ABBREV = re.compile(r"\b(Mr|Mrs|Ms|Dr|Prof|Sr|Jr|St|vs|etc|e\.g|i\.e|No|Vol|Fig|Inc|Ltd|Co|[A-Z])\.$")
+
+
+def plan(text: str, max_chars: int) -> tuple[list[dict], list[list[int]]]:
+    """Group sentences into speakable chunks of at most ~max_chars.
+
+    Returns (sentences, groups) where each group is a list of sentence indices spoken in one TTS call.
+    Over-long sentences are split on spaces so no single piece exceeds max_chars.
+    """
+    sents: list[dict] = []
+    for s in sentences(text):
+        t = s["t"]
+        while len(t) > max_chars:
+            cut = t.rfind(" ", 0, max_chars)
+            cut = cut if cut > 0 else max_chars
+            sents.append({"t": t[:cut], "p": s["p"]})
+            t = t[cut:].strip()
+        if t:
+            sents.append({"t": t, "p": s["p"]})
+    groups: list[list[int]] = []
+    cur: list[int] = []
+    size = 0
+    for i, s in enumerate(sents):
+        new_para = cur and sents[cur[-1]]["p"] != s["p"]
+        # Prefer to break at paragraph ends once a chunk is reasonably full.
+        if cur and (size + len(s["t"]) + 1 > max_chars or (new_para and size > max_chars * 0.6)):
+            groups.append(cur)
+            cur, size = [], 0
+        cur.append(i)
+        size += len(s["t"]) + 1
+    if cur:
+        groups.append(cur)
+    return sents, groups
+
+
+def group_text(sents: list[dict], group: list[int]) -> str:
+    """Text for one TTS call; paragraph breaks are kept so the voice pauses there."""
+    out = ""
+    for n, i in enumerate(group):
+        if n:
+            out += "\n\n" if sents[i]["p"] != sents[group[n - 1]]["p"] else " "
+        out += sents[i]["t"]
+    return out
+
+
+def speech_weight(s: str) -> float:
+    """Rough relative speaking time of a sentence, for placing sentences inside a chunk's audio."""
+    letters = sum(c.isalnum() for c in s)
+    pauses = len(re.findall(r"[,;:\u2014\u2013]", s)) * 4 + len(re.findall(r"[.!?\u2026]", s)) * 7
+    digits = sum(c.isdigit() for c in s) * 2  # numbers are read out long-hand
+    return letters + pauses + digits + 8  # + gap between sentences

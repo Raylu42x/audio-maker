@@ -8,7 +8,9 @@ import sys
 from pathlib import Path
 from typing import Callable
 
-from .extract import chunk
+import wave
+
+from .extract import group_text, plan, speech_weight
 
 Progress = Callable[[float, str], None]
 
@@ -17,6 +19,10 @@ NOVELTY = {
     "Albert", "Bad News", "Bahh", "Bells", "Boing", "Bubbles", "Cellos", "Fred", "Good News", "Jester",
     "Junior", "Kathy", "Organ", "Ralph", "Superstar", "Trinoids", "Whisper", "Wobble", "Zarvox",
 }
+
+# Max characters per TTS call. `say` has ~0.7s startup per call, so it gets bigger chunks;
+# Chatterbox degrades on long inputs. Sentence timings inside a chunk are estimated by length.
+CHUNK_CHARS = {"apple": 1000, "chatterbox": 280}
 
 CHATTERBOX_WORKER = Path(__file__).parent / "chatterbox_worker.py"
 CHATTERBOX_PYTHON = "3.11"
@@ -51,14 +57,14 @@ def default_apple_voice() -> str:
     return voices[0]["id"] if voices else "Samantha"
 
 
-def synth_apple(text: str, voice: str, rate: int | None, workdir: Path, progress: Progress) -> list[Path]:
-    chunks = chunk(text, 4000)
+def synth_apple(chunks: list[str], voice: str, rate: int | None, workdir: Path, progress: Progress) -> list[Path]:
     files = []
     for i, c in enumerate(chunks):
         txt = workdir / f"{i:05d}.txt"
-        out = workdir / f"{i:05d}.aiff"
+        out = workdir / f"{i:05d}.wav"
         txt.write_text(c)
-        cmd = [*NICE, "say", "-v", voice, "-f", str(txt), "-o", str(out)]
+        cmd = [*NICE, "say", "-v", voice, "-f", str(txt), "-o", str(out),
+               "--file-format=WAVE", "--data-format=LEI16@22050"]
         if rate:
             cmd += ["-r", str(rate)]
         r = subprocess.run(cmd, capture_output=True, text=True)
@@ -69,8 +75,7 @@ def synth_apple(text: str, voice: str, rate: int | None, workdir: Path, progress
     return files
 
 
-def synth_chatterbox(text: str, options: dict, workdir: Path, progress: Progress) -> list[Path]:
-    chunks = chunk(text, 280)  # Chatterbox degrades on long inputs; keep each call short.
+def synth_chatterbox(chunks: list[str], options: dict, workdir: Path, progress: Progress) -> list[Path]:
     job = {
         "chunks": chunks,
         "outdir": str(workdir),
@@ -103,6 +108,27 @@ def synth_chatterbox(text: str, options: dict, workdir: Path, progress: Progress
         tail = "\n".join(log_path.read_text(errors="replace").strip().splitlines()[-5:])
         raise RuntimeError(f"Chatterbox failed:\n{tail}")
     return [workdir / f"{i:05d}.wav" for i in range(len(chunks))]
+
+
+def synthesize(text: str, engine: str, voice: str, options: dict, workdir: Path, progress: Progress):
+    """Speak `text`. Returns (wav parts, sync map) where the sync map places every sentence on the timeline."""
+    sents, groups = plan(text, CHUNK_CHARS[engine])
+    chunks = [group_text(sents, g) for g in groups]
+    if engine == "chatterbox":
+        files = synth_chatterbox(chunks, options, workdir, progress)
+    else:
+        files = synth_apple(chunks, voice, options.get("rate"), workdir, progress)
+    t = 0.0
+    for g, f in zip(groups, files):
+        with wave.open(str(f)) as w:
+            dur = w.getnframes() / w.getframerate()
+        weights = [speech_weight(sents[i]["t"]) for i in g]
+        total = sum(weights)
+        for i, wt in zip(g, weights):
+            sents[i]["s"] = round(t, 2)
+            t += dur * wt / total
+            sents[i]["e"] = round(t, 2)
+    return files, {"version": 1, "sentences": sents}
 
 
 def combine(files: list[Path], out: Path) -> float:
