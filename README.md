@@ -14,6 +14,16 @@ uv run audio-maker
 
 Your browser opens at http://127.0.0.1:8765. Drop a file onto the page, pick a voice, click **Make audio**.
 
+### Start automatically at login
+
+```bash
+scripts/install-login-item.sh              # installs a LaunchAgent and starts it now
+scripts/install-login-item.sh --uninstall  # remove it
+```
+
+It runs in the background from this checkout (re-run the script if you move the folder), restarts if it
+crashes, and doesn't open a browser — bookmark http://127.0.0.1:8765. Logs: `~/Library/Logs/audio-maker.log`.
+
 Requirements: macOS, [uv](https://docs.astral.sh/uv/), and `ffmpeg` (`brew install ffmpeg`).
 
 ## Follow along & bookmarks
