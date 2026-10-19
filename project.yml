@@ -1,0 +1,29 @@
+name: AudioMaker
+options:
+  bundleIdPrefix: com.raylu42x
+  deploymentTarget:
+    macOS: "15.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MACOSX_DEPLOYMENT_TARGET: "15.0"
+targets:
+  AudioMaker:
+    type: application
+    platform: macOS
+    configFiles:
+      Debug: Config/Signing.xcconfig
+      Release: Config/Signing.xcconfig
+    sources:
+      - path: AudioMaker
+    settings:
+      base:
+        PRODUCT_NAME: Audio Maker
+        PRODUCT_BUNDLE_IDENTIFIER: com.raylu42x.audiomaker
+        INFOPLIST_FILE: AudioMaker/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ENABLE_HARDENED_RUNTIME: NO
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        COMBINE_HIDPI_IMAGES: YES

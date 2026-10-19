@@ -1,0 +1,9 @@
+// Default: ad-hoc signing, so anyone can build and run locally without an Apple account.
+CODE_SIGN_STYLE = Manual
+CODE_SIGN_IDENTITY = -
+DEVELOPMENT_TEAM =
+
+// Your own certificate goes in Config/Local.xcconfig (git-ignored), e.g.
+//   CODE_SIGN_IDENTITY = Apple Development: you@example.com (XXXXXXXXXX)
+//   DEVELOPMENT_TEAM = YOURTEAMID
+#include? "Local.xcconfig"
