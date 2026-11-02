@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.pyc
+build/
+xcuserdata/
+*.xcuserstate
+.DS_Store
+Config/Local.xcconfig

@@ -1,0 +1,431 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		051686F74C0A20BF3B7BD3E2 /* Library.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B053DE30ABF7A18E4D1DD63 /* Library.swift */; };
+		0BBC3A6EFAC897F19F5F2C43 /* Generator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C7DAE6049FB0B825AC7B24E /* Generator.swift */; };
+		14D1A8D7A4DF4BEE39CCF9DD /* chatterbox_worker.py in Resources */ = {isa = PBXBuildFile; fileRef = 25E930DD0831E208618280DA /* chatterbox_worker.py */; };
+		266918CD6208AFCC47B786B2 /* AppleSpeech.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0A3F0D742CCB0E167072F6 /* AppleSpeech.swift */; };
+		29C0718E32F8D8309FABDE99 /* TextPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3157FA22FE11413FD2B58548 /* TextPlanner.swift */; };
+		3978741A79CFB5B1559C0DAE /* AudioMakerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96B378B68E16F96E1FADE6FE /* AudioMakerApp.swift */; };
+		5292F3D8C77129F6DBF74649 /* BookmarksViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EA4655A223B4914074168A9 /* BookmarksViews.swift */; };
+		6F3AC2FFB335D646FCA5B60E /* Extractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC5159C1DF2084F7663967A /* Extractor.swift */; };
+		817FE2B737E35A13BF535FD7 /* NewItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C828B594D17B4A90895247D9 /* NewItemView.swift */; };
+		8661EC15BE25B802ACC19E03 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66506348DFAB994EBDE748E /* ContentView.swift */; };
+		8A59BC1FAB19DE2F3D616485 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70E693128273DA0F41C07F6D /* Player.swift */; };
+		9D4C56D73438CABDCCAE6E71 /* PlayerBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82BC404CA505720578E4C27B /* PlayerBar.swift */; };
+		9EAF68C28CDF7EA72DC8B3A8 /* Chatterbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF45BAA634E8E4C6DBEA71E5 /* Chatterbox.swift */; };
+		CC31A60698D2BBA77BE49F67 /* ReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDD30A121623817F185289F8 /* ReaderView.swift */; };
+		CE100FB4E995383F3B263121 /* AudioWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 121EA2FA55AF9A54356C45DD /* AudioWriter.swift */; };
+		CF6A1A6A36D8C8E64B30D858 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = D71D59BFFEB2857F440FCDD9 /* Models.swift */; };
+		D79F629CA4CD56C6C4F12986 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C78557F4C9F8B735FB405A46 /* Assets.xcassets */; };
+		E7ECF985005259924E1B862A /* ItemDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27DF64D9D1237689B8E326FC /* ItemDetailView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		121EA2FA55AF9A54356C45DD /* AudioWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioWriter.swift; sourceTree = "<group>"; };
+		1BED59EF23E3057368464542 /* AudioMaker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AudioMaker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		25E930DD0831E208618280DA /* chatterbox_worker.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = chatterbox_worker.py; sourceTree = "<group>"; };
+		27DF64D9D1237689B8E326FC /* ItemDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailView.swift; sourceTree = "<group>"; };
+		3157FA22FE11413FD2B58548 /* TextPlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextPlanner.swift; sourceTree = "<group>"; };
+		672B444CB107D455F499F007 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		70E693128273DA0F41C07F6D /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
+		7B053DE30ABF7A18E4D1DD63 /* Library.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Library.swift; sourceTree = "<group>"; };
+		7C7DAE6049FB0B825AC7B24E /* Generator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Generator.swift; sourceTree = "<group>"; };
+		82BC404CA505720578E4C27B /* PlayerBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerBar.swift; sourceTree = "<group>"; };
+		8EA4655A223B4914074168A9 /* BookmarksViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksViews.swift; sourceTree = "<group>"; };
+		96B378B68E16F96E1FADE6FE /* AudioMakerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioMakerApp.swift; sourceTree = "<group>"; };
+		ABC5159C1DF2084F7663967A /* Extractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extractor.swift; sourceTree = "<group>"; };
+		BDD30A121623817F185289F8 /* ReaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderView.swift; sourceTree = "<group>"; };
+		C66506348DFAB994EBDE748E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		C78557F4C9F8B735FB405A46 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C828B594D17B4A90895247D9 /* NewItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewItemView.swift; sourceTree = "<group>"; };
+		CD0A3F0D742CCB0E167072F6 /* AppleSpeech.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSpeech.swift; sourceTree = "<group>"; };
+		CF45BAA634E8E4C6DBEA71E5 /* Chatterbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chatterbox.swift; sourceTree = "<group>"; };
+		D55C050378D945560F51D0E3 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
+		D71D59BFFEB2857F440FCDD9 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		0E3756D1FBE9F8D3EDA37B26 /* Engine */ = {
+			isa = PBXGroup;
+			children = (
+				CD0A3F0D742CCB0E167072F6 /* AppleSpeech.swift */,
+				121EA2FA55AF9A54356C45DD /* AudioWriter.swift */,
+				CF45BAA634E8E4C6DBEA71E5 /* Chatterbox.swift */,
+				ABC5159C1DF2084F7663967A /* Extractor.swift */,
+				7C7DAE6049FB0B825AC7B24E /* Generator.swift */,
+				3157FA22FE11413FD2B58548 /* TextPlanner.swift */,
+			);
+			path = Engine;
+			sourceTree = "<group>";
+		};
+		13A320BB6EA5EA96F45DE7FD = {
+			isa = PBXGroup;
+			children = (
+				9870C4F3289C2877250DD80C /* AudioMaker */,
+				35BBF0D21449BAB37F845B71 /* Config */,
+				D78D1F6B2BA925B92E02A7D2 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2B38E89011BA043F6DB5B974 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				7B053DE30ABF7A18E4D1DD63 /* Library.swift */,
+				D71D59BFFEB2857F440FCDD9 /* Models.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		35BBF0D21449BAB37F845B71 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				D55C050378D945560F51D0E3 /* Signing.xcconfig */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		5DA60BE46336AF50926D3EA5 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				96B378B68E16F96E1FADE6FE /* AudioMakerApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		850AC14B8A200D3D5FD792F2 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				C78557F4C9F8B735FB405A46 /* Assets.xcassets */,
+				25E930DD0831E208618280DA /* chatterbox_worker.py */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		894F301D9D3B8F4D563C0876 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				8EA4655A223B4914074168A9 /* BookmarksViews.swift */,
+				C66506348DFAB994EBDE748E /* ContentView.swift */,
+				27DF64D9D1237689B8E326FC /* ItemDetailView.swift */,
+				C828B594D17B4A90895247D9 /* NewItemView.swift */,
+				82BC404CA505720578E4C27B /* PlayerBar.swift */,
+				BDD30A121623817F185289F8 /* ReaderView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		8F39AAD2ECD4376B8C7B11AE /* Playback */ = {
+			isa = PBXGroup;
+			children = (
+				70E693128273DA0F41C07F6D /* Player.swift */,
+			);
+			path = Playback;
+			sourceTree = "<group>";
+		};
+		9870C4F3289C2877250DD80C /* AudioMaker */ = {
+			isa = PBXGroup;
+			children = (
+				672B444CB107D455F499F007 /* Info.plist */,
+				5DA60BE46336AF50926D3EA5 /* App */,
+				0E3756D1FBE9F8D3EDA37B26 /* Engine */,
+				2B38E89011BA043F6DB5B974 /* Model */,
+				8F39AAD2ECD4376B8C7B11AE /* Playback */,
+				850AC14B8A200D3D5FD792F2 /* Resources */,
+				894F301D9D3B8F4D563C0876 /* Views */,
+			);
+			path = AudioMaker;
+			sourceTree = "<group>";
+		};
+		D78D1F6B2BA925B92E02A7D2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1BED59EF23E3057368464542 /* AudioMaker.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		77662E6836A3541884D94C10 /* AudioMaker */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0DCC1D60B0C45E05BF20D7D0 /* Build configuration list for PBXNativeTarget "AudioMaker" */;
+			buildPhases = (
+				3D96B8BFE8D0645426B8FCA4 /* Sources */,
+				3BDF5D3E2726E83FC8272576 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AudioMaker;
+			packageProductDependencies = (
+			);
+			productName = AudioMaker;
+			productReference = 1BED59EF23E3057368464542 /* AudioMaker.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AF1BADF920095BEAA799587C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					77662E6836A3541884D94C10 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Manual;
+					};
+				};
+			};
+			buildConfigurationList = 8FA62D8B15A9739EAB4DEE47 /* Build configuration list for PBXProject "AudioMaker" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 13A320BB6EA5EA96F45DE7FD;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = D78D1F6B2BA925B92E02A7D2 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				77662E6836A3541884D94C10 /* AudioMaker */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		3BDF5D3E2726E83FC8272576 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D79F629CA4CD56C6C4F12986 /* Assets.xcassets in Resources */,
+				14D1A8D7A4DF4BEE39CCF9DD /* chatterbox_worker.py in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3D96B8BFE8D0645426B8FCA4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				266918CD6208AFCC47B786B2 /* AppleSpeech.swift in Sources */,
+				3978741A79CFB5B1559C0DAE /* AudioMakerApp.swift in Sources */,
+				CE100FB4E995383F3B263121 /* AudioWriter.swift in Sources */,
+				5292F3D8C77129F6DBF74649 /* BookmarksViews.swift in Sources */,
+				9EAF68C28CDF7EA72DC8B3A8 /* Chatterbox.swift in Sources */,
+				8661EC15BE25B802ACC19E03 /* ContentView.swift in Sources */,
+				6F3AC2FFB335D646FCA5B60E /* Extractor.swift in Sources */,
+				0BBC3A6EFAC897F19F5F2C43 /* Generator.swift in Sources */,
+				E7ECF985005259924E1B862A /* ItemDetailView.swift in Sources */,
+				051686F74C0A20BF3B7BD3E2 /* Library.swift in Sources */,
+				CF6A1A6A36D8C8E64B30D858 /* Models.swift in Sources */,
+				817FE2B737E35A13BF535FD7 /* NewItemView.swift in Sources */,
+				8A59BC1FAB19DE2F3D616485 /* Player.swift in Sources */,
+				9D4C56D73438CABDCCAE6E71 /* PlayerBar.swift in Sources */,
+				CC31A60698D2BBA77BE49F67 /* ReaderView.swift in Sources */,
+				29C0718E32F8D8309FABDE99 /* TextPlanner.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		310080F74F1CC034F20ABFD2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		44CAA491D84CE1D90076F3CB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		9323C845736E14D9743F96DF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D55C050378D945560F51D0E3 /* Signing.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = NO;
+				INFOPLIST_FILE = AudioMaker/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.raylu42x.audiomaker;
+				PRODUCT_NAME = "Audio Maker";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		F770ED16D84C06D54AD25668 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D55C050378D945560F51D0E3 /* Signing.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = NO;
+				INFOPLIST_FILE = AudioMaker/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.raylu42x.audiomaker;
+				PRODUCT_NAME = "Audio Maker";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0DCC1D60B0C45E05BF20D7D0 /* Build configuration list for PBXNativeTarget "AudioMaker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9323C845736E14D9743F96DF /* Debug */,
+				F770ED16D84C06D54AD25668 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		8FA62D8B15A9739EAB4DEE47 /* Build configuration list for PBXProject "AudioMaker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				44CAA491D84CE1D90076F3CB /* Debug */,
+				310080F74F1CC034F20ABFD2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = AF1BADF920095BEAA799587C /* Project object */;
+}
